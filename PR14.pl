@@ -59,7 +59,7 @@ s(^, X, Y, X ^ Y). % x^y=x^y
 % Определение производной с упрощением
 derivative(F, X, Result) :-
     d(F, X, D),
-    óïðîñòèòü(D, Result).
+    упростить(D, Result).
 
 save_result_txt(File, Expression, Derivative) :-
     open(File, write, Stream),
@@ -74,23 +74,23 @@ save_result_mat(File, Expression, Derivative) :-
     close(Stream).
 
 save_result_custom(File, Expression, Derivative) :-
-    (   open(File, write, Stream, []) -> % Ïðîâåðÿåì óñïåøíîñòü îòêðûòèÿ ôàéëà
+    (   open(File, write, Stream, []) -> % Проверяем успешность открытия файла
         (
             format(Stream, '=== Differential Calculation ===~n', []),
             format(Stream, 'Expression: ~w~n', [Expression]),
             format(Stream, 'Derivative: ~w~n', [Derivative]),
             format(Stream, '==============================~n', []),
-            close(Stream) % Çàêðûâàåì ïîòîê ïîñëå çàïèñè
+            close(Stream) % Закрываем поток после записи
         )
-    ;   write('Îøèáêà ïðè ñîçäàíèè ôàéëà.'), nl % Îáðàáîòêà îøèáêè îòêðûòèÿ ôàéëà
+    ;   write('Ошибка при создании файла.'), nl % Обработка ошибки открытия файла
     ).
 
 save_result_html(File, Expression, Derivative) :-
     open(File, write, Stream),
     format(Stream, '<!DOCTYPE html><html><body>', []),
-    format(Stream, '<h1>Äèôôåðåíöèðîâàíèå</h1>', []),
-    format(Stream, '<p>Ôóíêöèÿ: ~w</p>', [Expression]),
-    format(Stream, '<p>Ïðîèçâîäíàÿ: ~w</p>', [Derivative]),
+    format(Stream, '<h1>Дифференцирование</h1>', []),
+    format(Stream, '<p>Функция: ~w</p>', [Expression]),
+    format(Stream, '<p>Производная: ~w</p>', [Derivative]),
     format(Stream, '</body></html>', []),
     close(Stream).
 
@@ -111,21 +111,21 @@ create_filename(BaseName, Format, FileName) :-
 
 % Интерфейс пользователя
 main :-
-    write('Ââåäèòå ôóíêöèþ äëÿ äèôôåðåíöèðîâàíèÿ: '),
+    write('Введите функцию для дифференцирования: '),
     read(F),
-    write('Ââåäèòå ïåðåìåííóþ äèôôåðåíöèðîâàíèÿ: '),
+    write('Введите переменную дифференцирования: '),
     read(X),
     derivative(F, X, Result),
-    write('Ïðîèçâîäíàÿ: '), writeln(Result),
-    write('Ñîõðàíèòü ðåçóëüòàò â ôàéë? (yes/no): '),
+    write('Производная: '), writeln(Result),
+    write('Сохранить результат в файл? (yes/no): '),
     read(Answer),
     (   Answer == yes ->
-        write('Ââåäèòå èìÿ ôàéëà (áåç ðàñøèðåíèÿ): '),
+        write('Введите имя файла (без расширения): '),
         read(BaseName),
-        write('Âûáåðèòå ôîðìàò (txt/mat/custom/html): '),
+        write('Выберите формат (txt/mat/custom/html): '),
         read(Format),
-        create_filename(BaseName, Format, FileName), % Ñîçäàåì èìÿ ôàéëà
+        create_filename(BaseName, Format, FileName),  % Создаем имя файла
         save_result(FileName, Format, F, Result),
-        write('Ðåçóëüòàò ñîõðàí¸í.')
+        write('Результат сохранён.')
     ;   true
     ).
